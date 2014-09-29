@@ -1,0 +1,9 @@
+Building Hundredcoin
+
+See doc/readme-qt.rst for instructions on building Hundredcoin-Qt,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of Hundredcoin.
+
+See doc/build-*.txt for instructions on building hundredcoind,
+the intended-for-services, no-graphical-interface, reference
+implementation of Hundredcoin.
