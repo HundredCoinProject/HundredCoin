@@ -31,7 +31,7 @@ CTxMemPool mempool;
 unsigned int nTransactionsUpdated = 0;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
-uint256 hashGenesisBlock("0x00000cd03c97be3d7bb7eecb864448cc51f88262cfb71065212148b097e39e57");
+uint256 hashGenesisBlock("0x000006c73e0d37f7ae3856b2023cb8b3665cef1037b3b5f494f1b9cc70060c26");
 static CBigNum bnProofOfWorkLimit = CBigNum().SetCompact(504365644); // Hundredcoin: starting difficulty is 1 / 2^12
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -1073,10 +1073,15 @@ int64 static GetBlockValue(int nHeight, int64 nFees)
 {
     int64 nSubsidy = 10000000000;
 
-    // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
-    nSubsidy >>= (nHeight / 999999999); // Hundredcoin: 840k blocks in ~4 years
-
-    return nSubsidy + nFees;
+    if(nHeight == 1)
+    {
+        nSubsidy = 1000000 * COIN; // 1 Million coins
+        return nSubsidy + nFees;
+    }else{
+        // Subsidy is cut in half every 840000 blocks, which will occur approximately every 4 years
+        nSubsidy >>= (nHeight / 999999999); // Hundredcoin: 840k blocks in ~4 years
+        return nSubsidy + nFees;
+    }
 }
 
 static const int64 nTargetTimespan = 1000; // Hundredcoin: 3.5 days
@@ -1108,76 +1113,6 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
     return bnResult.GetCompact();
 }
 
-/*
-unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
-{
-    unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
-
-    // Genesis block
-    if (pindexLast == NULL)
-        return nProofOfWorkLimit;
-
-    // Only change once per interval
-    if ((pindexLast->nHeight+1) % nInterval != 0)
-    {
-        // Special difficulty rule for testnet:
-        if (fTestNet)
-        {
-            // If the new block's timestamp is more than 2* 10 minutes
-            // then allow mining of a min-difficulty block.
-            if (pblock->nTime > pindexLast->nTime + nTargetSpacing*2)
-                return nProofOfWorkLimit;
-            else
-            {
-                // Return the last non-special-min-difficulty-rules-block
-                const CBlockIndex* pindex = pindexLast;
-                while (pindex->pprev && pindex->nHeight % nInterval != 0 && pindex->nBits == nProofOfWorkLimit)
-                    pindex = pindex->pprev;
-                return pindex->nBits;
-            }
-        }
-
-        return pindexLast->nBits;
-    }
-
-    // Hundredcoin: This fixes an issue where a 51% attack can change difficulty at will.
-    // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
-    int blockstogoback = nInterval-1;
-    if ((pindexLast->nHeight+1) != nInterval)
-        blockstogoback = nInterval;
-
-    // Go back by what we want to be 14 days worth of blocks
-    const CBlockIndex* pindexFirst = pindexLast;
-    for (int i = 0; pindexFirst && i < blockstogoback; i++)
-        pindexFirst = pindexFirst->pprev;
-    assert(pindexFirst);
-
-    // Limit adjustment step
-    int64 nActualTimespan = pindexLast->GetBlockTime() - pindexFirst->GetBlockTime();
-    printf("  nActualTimespan = %"PRI64d"  before bounds\n", nActualTimespan);
-    if (nActualTimespan < nTargetTimespan/4)
-        nActualTimespan = nTargetTimespan/4;
-    if (nActualTimespan > nTargetTimespan*4)
-        nActualTimespan = nTargetTimespan*4;
-
-    // Retarget
-    CBigNum bnNew;
-    bnNew.SetCompact(pindexLast->nBits);
-    bnNew *= nActualTimespan;
-    bnNew /= nTargetTimespan;
-
-    if (bnNew > bnProofOfWorkLimit)
-        bnNew = bnProofOfWorkLimit;
-
-    /// debug print
-    printf("GetNextWorkRequired RETARGET\n");
-    printf("nTargetTimespan = %"PRI64d"    nActualTimespan = %"PRI64d"\n", nTargetTimespan, nActualTimespan);
-    printf("Before: %08x  %s\n", pindexLast->nBits, CBigNum().SetCompact(pindexLast->nBits).getuint256().ToString().c_str());
-    printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
-
-    return bnNew.GetCompact();
-}
-*/
 
 unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
@@ -2767,7 +2702,7 @@ bool LoadBlockIndex()
         pchMessageStart[1] = 0xc1;
         pchMessageStart[2] = 0xb7;
         pchMessageStart[3] = 0xdc;
-        hashGenesisBlock = uint256("0x00000cd03c97be3d7bb7eecb864448cc51f88262cfb71065212148b097e39e57");
+        hashGenesisBlock = uint256("0x000006c73e0d37f7ae3856b2023cb8b3665cef1037b3b5f494f1b9cc70060c26");
     }
 
     //
@@ -2814,16 +2749,16 @@ bool InitBlockIndex() {
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
         //block.nTime    = 1411712618;
-        block.nTime    = 1411942762;
+        block.nTime    = 1411991525;
         block.nBits    = 0x1e10024c;
         //block.nNonce   = 2596996162;
-        block.nNonce   = 2066117;
+        block.nNonce   = 166754;
 
         if (fTestNet)
         {
-            block.nTime    = 1411942762;
+            block.nTime    = 1411991525;
             //block.nNonce   = 4039455774;
-            block.nNonce   = 2066117;    
+            block.nNonce   = 166754;    
         }
 
         if ( false && (block.GetHash() != hashGenesisBlock)) {
